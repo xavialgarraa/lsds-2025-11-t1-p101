@@ -29,15 +29,19 @@ Remember you must format your code with black and follow PEP8 conventions.
 > Answer each question briefly (at most, 2 sentences per question).
 
 **[1 mark] What is the difference between a server and a service?**
+A server is a physical or virtual machine that runs software, while a service is the software or application functionality provided by the server.
 
 **[1 mark] What is the difference between horizontal and vertical scaling?**
+Horizontal scaling adds more servers to distribute the load, while vertical scaling increases the capacity (CPU, RAM) of a single server.
 
 **[1 mark] What does availability mean?**
+Availability refers to the ability of a system to remain operational and accessible for use, minimizing downtime.
 
 **[1 mark] What does durability mean?**
+Durability refers to the ability of a system to ensure data persistence and protection against data loss over time.
 
 **[1 mark] To improve the availability of a service, would you recommend vertical or horizontal scaling?**
-
+Horizontal scaling is recommended as it reduces single points of failure and distributes load more effectively, improving availability.
 ---
 
 ### [S1Q1] [10 marks] Answer the following questions about HDFS.
@@ -73,14 +77,34 @@ Remember you must format your code with black and follow PEP8 conventions.
 > Answer each question briefly (at most, 2 sentences per question).
 
 **[1 mark] What is the difference between TCP and UDP?**
+TCP (Transmission Control Protocol): data is delivered without loss and in the correct order.
+- Used when reliability and deliver order are important. It is slower due to  its overhead (ratio data_requested/data _sent): Includes error  correction,retransmission, flow control data.	
+
+UDP (User Datagram Protocol): does not guarantee the integrity, order, or delivery of data
+- Used when speed is more important than reliability, and occasional loss of data is acceptable. It is faster but does not guarantee the integrity, order, or delivery of data.
 
 **[1 mark] What is HTTP? Is HTTP based on TCP or UDP?**
 
 **[1 mark] What is an API?**
+API (Application Programming Interface) is a set of rules and protocols that allows different software applications to communicate and exchange information with each other.
 
 **[1 mark] Watch [RESTful APIs in 100 Seconds](https://www.youtube.com/watch?v=-MTSQjw5DrM) and/or [What is a REST API?](https://www.youtube.com/watch?v=-mN3VyJuCjM). What is an HTTP API? What is an HTTP REST API?**
+НТТР API, interface to communicate a client and a server using HTTP. Defines how the client interacts with the server to retrieve or modify resources over the network.
+
+HTTP REST API (Representational State Transfer API): specific type of HTTP API that uses REST architecture.
+    - REST: a set of guldelines for designing networked applications.
+        - Uses standard HTTP methods (GET, POST, PUT, DELETE, etc.) for                     operations.
+        - Stateless:
+            - Two parties don't need to store any information about each other
+            - Every request response cycle is independent from all other                         communication
+            - Resources Identified by URLs.
 
 **[1 mark] What 4 verbs does an HTTP API use for representing the actions of reading, updating, deleting and creating?**
+CRUD operations (Create, Read, Update, Delete):
+    - POST: Used to create new resources on the server.
+    - GET: Used to read or retrieve resources (data from the server).
+    - PUT: Used to update or existing resources on the server
+    - DELETE: Used to delete resources on the server.
 
 ---
 
@@ -90,14 +114,22 @@ Remember you must format your code with black and follow PEP8 conventions.
 > Answer each question briefly (at most, 2 sentences per question).
 
 **[1 mark] Watch [Docker in 100 Seconds](https://www.youtube.com/watch?v=Gjnup-PuquQ). What is a Dockerfile?**
+A Dockerfile is a (text) file containing a set of instructions that defines how to build a Docker image, specifying: 1. the environment, 2. dependencies, 3. configurations, and 4. commands required to run an application inside a container.
 
 **[1 mark] What is a Docker image?**
+Docker image: is a 1. lightweight, 2. standalone, and 3. executable package that includes everything needed to run an application, such as the code, libraries, dependencies, and the runtime environment. Used to create Docker containers.
 
 **[1 mark] What is a Docker container?**
+A Docker container is a runtime instance of a Docker image that encapsulates an application and its dependencies.
 
 **[1 mark] What is Docker compose?**
+Docker Compose is a tool for defining and running multi-container Docker applications, simplifying the management of complex application stacks with a single YAML configuration file.
 
 **[1 mark] What is a Docker compose file?**
+Docker Compose file is a YAML file used with Docker Compose. This file (usually named docker-compose.yml), provides a structured way to describe how containers should be:
+    - configured
+    - connected
+    - and run as part of an application stack.
 
 ---
 
