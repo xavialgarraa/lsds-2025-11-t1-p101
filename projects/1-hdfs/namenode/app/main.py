@@ -59,7 +59,7 @@ def upload_files(file: File):
     blocks = []
     for i in range(num_blocks):
         datanode_idx = i % len(datanodes)
-        replica_idx = (datanode_idx + i) % len(datanodes)
+        replica_idx = (datanode_idx + num_replicas) % len(datanodes)
         rest_size = rest_size - (i + 1) * block_size
         if rest_size > block_size:
             size = block_size
@@ -77,4 +77,4 @@ def upload_files(file: File):
 
     save_files(data)
 
-    return {"number_blocks": num_blocks}  # falta datanode
+    return {"number_blocks": num_blocks, "datanode": datanodes[datanode_idx]}
