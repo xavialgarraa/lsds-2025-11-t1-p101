@@ -1,0 +1,54 @@
+{
+    "cat.jpg": {
+        "file_name": "cat.jpg",
+        "size": 295,
+        "blocks": [
+            {
+                "number": 0,
+                "size": 100,
+                "replicas": [
+                    {
+                        "host": "localhost",
+                        "port": 8001
+                    }
+                ]
+            },
+            {
+                "number": 1,
+                "size": 100,
+                "replicas": [
+                    {
+                        "host": "localhost",
+                        "port": 8002
+                    }
+                ]
+            },
+            {
+                "number": 2,
+                "size": 95,
+                "replicas": [
+                    {
+                        "host": "localhost",
+                        "port": 8003
+                    }
+                ]
+            }
+        ]
+    },
+    "somefile.txt": {
+        "file_name": "somefile.txt",
+        "size": 95,
+        "blocks": [
+            {
+                "number": 0,
+                "size": 95,
+                "replicas": [
+                    {
+                        "host": "localhost",
+                        "port": 8001
+                    }
+                ]
+            }
+        ]
+    }
+}
