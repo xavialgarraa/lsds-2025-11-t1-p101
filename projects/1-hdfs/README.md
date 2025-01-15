@@ -120,6 +120,7 @@ UDP (User Datagram Protocol): does not guarantee the integrity, order, or delive
 - Used when speed is more important than reliability, and occasional loss of data is acceptable. It is faster but does not guarantee the integrity, order, or delivery of data.
 
 **[1 mark] What is HTTP? Is HTTP based on TCP or UDP?**
+HTTP (Hypertext Transfer Protocol) is the system used to load web pages and send data on the internet. It is based on TCP.
 
 **[1 mark] What is an API?**
 API (Application Programming Interface) is a set of rules and protocols that allows different software applications to communicate and exchange information with each other.
@@ -174,6 +175,8 @@ Docker Compose file is a YAML file used with Docker Compose. This file (usually 
 Inside the folder [projects\1-hdfs\testserver1](./testserver1/), follow the [Fastapi quickstart](https://fastapi.tiangolo.com/#installation) tutorial to build a service with an HTTP API.
 
 **[1 mark] Paste a screenshot where you do a GET request to your service using the browser. Open `http://127.0.0.1:8000/items/512?q=lsds25`.**.
+
+
 
 **[1 mark] Paste a screenshot where you do the same GET request to your service but using `curl` in the terminal. Run `curl -X GET http://127.0.0.1:8000/items/835?q=lsds25`.**
 
