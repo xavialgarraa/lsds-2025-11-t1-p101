@@ -42,6 +42,7 @@ Durability refers to the ability of a system to ensure data persistence and prot
 
 **[1 mark] To improve the availability of a service, would you recommend vertical or horizontal scaling?**
 Horizontal scaling is recommended as it reduces single points of failure and distributes load more effectively, improving availability.
+
 ---
 
 ### [S1Q1] [10 marks] Answer the following questions about HDFS.
@@ -50,24 +51,59 @@ Horizontal scaling is recommended as it reduces single points of failure and dis
 > Answer each question briefly (at most, 2 sentences per question).
 
 **[1 mark] What are files divided into?**
+Files are divided into blocks.
 
 **[1 mark] Are all blocks the same size?**
+No, blocks can be of different sizes, but HDFS typically uses a default block size (e.g., 128 MB) for uniformity.
 
 **[1 mark] How many instances of the `namenode` can run in HDFS?**
+1 Active NameNode, but in HA HDFS 1 Standby NameNode(optional, for high availability) and 1 Secondary NameNode(optional, for checkpointing).
 
 **[1 mark] Does the `namenode` scale horizontally or vertically? How does it impact availability?**
+NameNode scales vertically.
+Impact availability:
+    - Single Point of Failure
+    - In HA, there are NN in stand by to substitute active NN in case it fails.
+    - Limited scalability in vertical (cannot grow to infinite!)
 
 **[1 mark] How many instances of the `datanode` can run in HDFS?**
+Multiple datanodes can run in HDFS, typically across different machines.
 
 **[1 mark] Does the `datanode` scale horizontally or vertically? How does it impact availability?**
-
+Horizontally(increase the number of DataNodes).
+Availability impact: Improves(increases as we scale out):
+    - Fault Tolerance (data replication)
+    - Improve Throughput: DN increases -> cluster can handle more read/write operations in parallel ->  Availability improves (system can serve more users and worlkloads simultaneously)
+    - Redundancy (data replication is better distributed)
+    
 **[1 mark] Take a look at [Uploading files](#uploading-files). What is the main difference when writing a file to SSHDFS when compared to HDFS in relation to replication?**
+When writing a file to SSHDFS, replication is handled by SSH rather than HDFS’s internal block replication mechanism
 
 **[1 mark] How is the image constructed from the journal (WAL) and checkpoint?**
-
+The FS Image is constructed from two key components: the journal (WAL) and the checkpoint.
+    1. Start with the latest checkpoint (fsimage):a stable snapshot of the file  system
+    2. Replay the journal (WAL) which contains all the subsequent changes made  to the file system since the last checkpoint, Incorporating them into the        reconstructed FS state.
+    3. Construct the final image: After replaying the journal, HDFS constructs  the final in-memory image of the file system
+    
 **[1 mark] Take a look at [namenode](#namenode-filesystem). Does SSHDFS have a journal? What is the main problem with this approach?**
+No, SSHDFS does not have a journal, leading to a higher risk of data loss since recent writes may be lost after a failure.
 
 **[1 mark] How does the replication factor impact durability?**
+Replication Factor Enhances Durability
+
+Fault Tolerance:
+    - Higher replication factors Increase fault tolerance. If a DN fails, other replicas are available, preventing data loss.
+
+Data Availability:
+    - Replication ensures that data is readily accessible even if some NN are down
+    - Clients can read data from any available replica.
+
+Data Recovery:
+    - When a block's replica is lost due to a DN failure, HDFS will automatically replicate the remaining copies of that block to other DNs to restore the replication factor (data durability).
+
+Network and Storage Overhead: increase copies of each block implies
+    - increases the storage: consume additional disk space 
+    - network overhead: require more network bandwidth for replication operations.
 
 ---
 
