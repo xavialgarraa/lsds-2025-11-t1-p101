@@ -5,10 +5,20 @@ import json
 app = FastAPI()
 
 
+class File(BaseModel):
+    name: str
+    size: int
+
+
 def load_config():
-    with open("namenode/config.json") as file:
+    with open("app/config.json") as file:
         data = json.load(file)
     return data
+
+
+def save_files(data):
+    with open("app/files.json", "w") as file:
+        json.dump(data, file, indent=4)
 
 
 @app.get("/")
@@ -32,3 +42,39 @@ config = load_config()
 @app.get("/datanodes")
 def get_datanodes():
     return config
+
+
+datanodes = config["datanodes"]
+block_size = config["block_size"]
+num_replicas = config["replication_factor"]
+
+
+@app.post("/files")
+def upload_files(file: File):
+    if file.size % block_size != 0:
+        num_blocks = (file.size // block_size) + 1
+    else:
+        num_blocks = file.size // block_size
+
+    blocks = []
+    for i in range(num_blocks):
+        datanode_idx = i % len(datanodes)
+        replica_idx = (datanode_idx + i) % len(datanodes)
+        rest_size = rest_size - (i + 1) * block_size
+        if rest_size > block_size:
+            size = block_size
+        else:
+            size = rest_size
+        blocks.append(
+            {
+                "number": i,
+                "size": size,
+                "replicas": [datanodes[datanode_idx], datanodes[replica_idx]],
+            }
+        )
+
+    data = {"file_name": file.name, "size": file.size, "blocks": blocks}
+
+    save_files(data)
+
+    return {"number_blocks": num_blocks}  # falta datanode
