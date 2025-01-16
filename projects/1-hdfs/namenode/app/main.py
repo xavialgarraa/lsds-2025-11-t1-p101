@@ -1,5 +1,6 @@
 from typing import Union
 from fastapi import FastAPI
+from pydantic import BaseModel
 import json
 
 app = FastAPI()
@@ -17,6 +18,11 @@ def load_config():
 
 
 def save_files(data):
+    with open("app/files.json", "r") as file:
+        current_data = json.load(file)
+
+    current_data.append(data)
+
     with open("app/files.json", "w") as file:
         json.dump(data, file, indent=4)
 
@@ -57,19 +63,23 @@ def upload_files(file: File):
         num_blocks = file.size // block_size
 
     blocks = []
+    rest_size = file.size
+
     for i in range(num_blocks):
+        size = min(block_size, rest_size)
+        rest_size -= size
         datanode_idx = i % len(datanodes)
-        replica_idx = (datanode_idx + num_replicas) % len(datanodes)
-        rest_size = rest_size - (i + 1) * block_size
-        if rest_size > block_size:
-            size = block_size
-        else:
-            size = rest_size
+
+        replicas = []
+        for j in range(num_replicas):
+            replica_idx = (datanode_idx + j + 1) % len(datanodes)
+            replicas.append(datanodes[replica_idx])
+
         blocks.append(
             {
                 "number": i,
                 "size": size,
-                "replicas": [datanodes[datanode_idx], datanodes[replica_idx]],
+                "replicas": replicas,
             }
         )
 
