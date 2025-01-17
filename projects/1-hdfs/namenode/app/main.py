@@ -18,13 +18,23 @@ def load_config():
 
 
 def save_files(data):
-    with open("app/files.json", "r") as file:
+    try:
+        current_data = []
+        file = open("app/files.json", "r")
         current_data = json.load(file)
-
-    current_data.append(data)
-
-    with open("app/files.json", "w") as file:
-        json.dump(data, file, indent=4)
+        # Append the new data
+        current_data.append(data)
+        # Save the file
+        try:
+            with open("app/files.json", "w") as file:
+                json.dump(current_data, file, indent=4)
+            print("Datos guardados correctamente.")
+        except Exception as e:
+            print(f"Error al escribir en el archivo JSON: {e}")
+            raise RuntimeError("No se pudo guardar los datos en el archivo JSON.")
+    except Exception as e:
+        print(f"Error inesperado en save_files: {e}")
+        raise RuntimeError("No se pudo guardar el archivo en el sistema.")
 
 
 @app.get("/")
@@ -57,34 +67,38 @@ num_replicas = config["replication_factor"]
 
 @app.post("/files")
 def upload_files(file: File):
-    if file.size % block_size != 0:
-        num_blocks = (file.size // block_size) + 1
-    else:
-        num_blocks = file.size // block_size
+    try:
+        if file.size % block_size != 0:
+            num_blocks = (file.size // block_size) + 1
+        else:
+            num_blocks = file.size // block_size
+        
+        blocks = []
+        rest_size = file.size
 
-    blocks = []
-    rest_size = file.size
+        for i in range(num_blocks):
+            size = min(block_size, rest_size)
+            rest_size -= size
+            datanode_idx = i % len(datanodes)
 
-    for i in range(num_blocks):
-        size = min(block_size, rest_size)
-        rest_size -= size
-        datanode_idx = i % len(datanodes)
+            replicas = []
+            for j in range(num_replicas):
+                replica_idx = (datanode_idx + j) % len(datanodes)
+                replicas.append(datanodes[replica_idx])
+            blocks.append(
+                {
+                    "number": i,
+                    "size": size,
+                    "replicas": replicas,
+                }
+            )
+        
+        data = {"file_name": file.name, "size": file.size, "blocks": blocks}
 
-        replicas = []
-        for j in range(num_replicas):
-            replica_idx = (datanode_idx + j + 1) % len(datanodes)
-            replicas.append(datanodes[replica_idx])
-
-        blocks.append(
-            {
-                "number": i,
-                "size": size,
-                "replicas": replicas,
-            }
-        )
-
-    data = {"file_name": file.name, "size": file.size, "blocks": blocks}
-
-    save_files(data)
-
-    return {"number_blocks": num_blocks, "datanode": datanodes[datanode_idx]}
+        save_files(data)
+        
+        return {"file_name": file.name, "size": file.size, "number_blocks": num_blocks, "blocks": blocks}
+    
+    except Exception as e:
+        print(f"Error inesperado en upload_files: {e}")
+        return {"error": "Ocurrió un error inesperado al procesar el archivo."}
