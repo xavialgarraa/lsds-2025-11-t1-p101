@@ -22,19 +22,19 @@ def save_files(data):
         current_data = []
         file = open("app/files.json", "r")
         current_data = json.load(file)
-        # Append the new data
+        # Append the new data to the current data list
         current_data.append(data)
-        # Save the file
+        # Save the updated data back to the file
         try:
             with open("app/files.json", "w") as file:
                 json.dump(current_data, file, indent=4)
-            print("Datos guardados correctamente.")
+            print("Data saved successfully.")
         except Exception as e:
-            print(f"Error al escribir en el archivo JSON: {e}")
-            raise RuntimeError("No se pudo guardar los datos en el archivo JSON.")
+            print(f"Error writing to JSON file: {e}")
+            raise RuntimeError("Failed to save data to the JSON file.")
     except Exception as e:
-        print(f"Error inesperado en save_files: {e}")
-        raise RuntimeError("No se pudo guardar el archivo en el sistema.")
+        print(f"Unexpected error in save_files: {e}")
+        raise RuntimeError("Failed to save the file in the system.")
 
 
 @app.get("/")
@@ -64,18 +64,19 @@ datanodes = config["datanodes"]
 block_size = config["block_size"]
 num_replicas = config["replication_factor"]
 
-
 @app.post("/files")
 def upload_files(file: File):
     try:
+        # Calculate the number of blocks needed
         if file.size % block_size != 0:
             num_blocks = (file.size // block_size) + 1
         else:
             num_blocks = file.size // block_size
         
-        blocks = []
-        rest_size = file.size
+        blocks = []  # List to store block information
+        rest_size = file.size  
 
+        # Create blocks with size and replicas
         for i in range(num_blocks):
             size = min(block_size, rest_size)
             rest_size -= size
@@ -94,11 +95,10 @@ def upload_files(file: File):
             )
         
         data = {"file_name": file.name, "size": file.size, "blocks": blocks}
-
-        save_files(data)
+        save_files(data)  # Save the file data
         
         return {"file_name": file.name, "size": file.size, "number_blocks": num_blocks, "blocks": blocks}
     
     except Exception as e:
-        print(f"Error inesperado en upload_files: {e}")
-        return {"error": "Ocurrió un error inesperado al procesar el archivo."}
+        print(f"Unexpected error in upload_files: {e}")
+        return {"error": "An unexpected error occurred while processing the file."}
