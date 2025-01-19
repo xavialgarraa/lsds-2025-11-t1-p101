@@ -6,4 +6,5 @@ services:
 
   datanode:
     build: datanode
-    ports: -"8001:80"
+    ports:
+      - "8001:80"
