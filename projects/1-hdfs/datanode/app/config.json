@@ -1,0 +1,18 @@
+{
+    "datanodes": [
+        {
+            "host": "localhost",
+            "port": 8001
+        },
+        {
+            "host": "localhost",
+            "port": 8002
+        },
+        {
+            "host": "localhost",
+            "port": 8003
+        }
+    ],
+    "replication_factor": 2,
+    "block_size": 100
+}
