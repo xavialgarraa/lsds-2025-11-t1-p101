@@ -1,5 +1,5 @@
 from typing import Union
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import json
 
@@ -37,6 +37,12 @@ def save_files(data):
         raise RuntimeError("Failed to save the file in the system.")
 
 
+def load_files():
+    with open("app/files.json") as file:
+        data = json.load(file)
+    return data
+
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
@@ -52,17 +58,17 @@ def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
 
+# Can be outside the functions, because the config is not modified while the server is running
 config = load_config()
+datanodes = config["datanodes"]
+block_size = config["block_size"]
+num_replicas = config["replication_factor"]
 
 
 @app.get("/datanodes")
 def get_datanodes():
     return config
 
-
-datanodes = config["datanodes"]
-block_size = config["block_size"]
-num_replicas = config["replication_factor"]
 
 @app.post("/files")
 def upload_files(file: File):
@@ -72,9 +78,9 @@ def upload_files(file: File):
             num_blocks = (file.size // block_size) + 1
         else:
             num_blocks = file.size // block_size
-        
+
         blocks = []  # List to store block information
-        rest_size = file.size  
+        rest_size = file.size
 
         # Create blocks with size and replicas
         for i in range(num_blocks):
@@ -93,12 +99,27 @@ def upload_files(file: File):
                     "replicas": replicas,
                 }
             )
-        
+
         data = {"file_name": file.name, "size": file.size, "blocks": blocks}
         save_files(data)  # Save the file data
-        
-        return {"file_name": file.name, "size": file.size, "number_blocks": num_blocks, "blocks": blocks}
-    
+
+        return {
+            "file_name": file.name,
+            "size": file.size,
+            "number_blocks": num_blocks,
+            "blocks": blocks,
+        }
+
     except Exception as e:
         print(f"Unexpected error in upload_files: {e}")
         return {"error": "An unexpected error occurred while processing the file."}
+
+
+@app.get("/files/{filename}")
+def read_file(filename: str):
+    files_metadata = load_files()
+    for file_info in files_metadata:
+        if file_info["file_name"] == filename:
+            return file_info
+
+    raise HTTPException(status_code=404, detail=f"File {filename} not found.")
