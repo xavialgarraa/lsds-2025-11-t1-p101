@@ -19,11 +19,15 @@ def load_config():
 
 def save_files(data):
     try:
-        current_data = []
-        file = open("app/files.json", "r")
-        current_data = json.load(file)
-        # Append the new data to the current data list
-        current_data.append(data)
+        current_data = {}
+        with open("app/files.json", "r") as file:
+            current_data = json.load(file)
+        # Append the new data to the current data dict
+        if data["file_name"] not in current_data:
+            current_data[data["file_name"]] = data
+        else:
+            raise HTTPException(status_code=409, detail=f"File already in dictoionary.")
+
         # Save the updated data back to the file
         try:
             with open("app/files.json", "w") as file:
