@@ -4,7 +4,6 @@ NN_URL = "http://localhost:8000/datanodes"
 
 
 def list_datanodes():
-    # Make a GET request to the namenode API
     r = requests.get(NN_URL)
     datanodes = r.json()
     print("List of Datanodes:")
