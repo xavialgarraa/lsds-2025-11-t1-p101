@@ -23,8 +23,8 @@ def save_files(data):
         with open("app/files.json", "r") as file:
             current_data = json.load(file)
     except Exception as e:
-            print(f"Unexpected error in read the file: {e}")
-            raise RuntimeError("Failed to read the file in the system.")
+        print(f"Unexpected error in read the file: {e}")
+        raise RuntimeError("Failed to read the file in the system.")
 
     # Append the new data to the current data dict
     if data["file_name"] not in current_data:
@@ -118,11 +118,7 @@ def upload_files(file: File):
 @app.get("/files/{filename}")
 def read_file(filename: str):
     files_metadata = load_files()
-
     if filename in files_metadata:
         return files_metadata[filename]
     else:
         raise HTTPException(status_code=400, detail=f"File {filename} not found.")
-
-
-
