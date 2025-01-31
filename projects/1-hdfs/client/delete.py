@@ -1,16 +1,26 @@
 import requests
 
+# Configuration
+NAMENODE_URL = "http://localhost:8000"
+
+
+def get_file_name():
+    """Prompts the user for the file name in the HDFS."""
+    file_name = input("Enter the file name in the HDFS: ").strip()
+    return file_name
+
 
 def delete_file_in_namenode(file_name):
-    namenode_url = "http://namenode:50070/webhdfs/v1/"
-    delete_url = f"{namenode_url}{file_name}?op=DELETE"
+    """Deletes a file in the namenode."""
+    delete_url = f"{NAMENODE_URL}/files/{file_name}?op=DELETE"
     response = requests.delete(delete_url)
     if response.status_code == 200:
-        print(f"Archivo {file_name} eliminado correctamente del Namenode.")
+        print(f"File {file_name} successfully deleted from the Namenode.")
     else:
-        print(f"Error al eliminar archivo {file_name} del Namenode: {response.text}")
+        print(f"Error deleting file {file_name} from the Namenode: {response.text}")
 
 
 if __name__ == "__main__":
-    file_name = input("Ingrese el nombre del archivo en el sistema HDFS: ")
-    delete_file_in_namenode(file_name)
+    hdfs_file_name = get_file_name()
+    if hdfs_file_name:
+        delete_file_in_namenode(hdfs_file_name)

@@ -1,49 +1,62 @@
 import requests
 import os
 
-NN_URL_CONFIG = "http://localhost:8000/datanodes"
-NN_URL_FILES = "http://localhost:8000/files"
+# Configuration
+NAMENODE_URL = "http://localhost:8000"
 
 
-def upload():
-    path = input("File path: ")
-    filename = input("Filename: ")
+def get_file_info():
+    """Prompts the user for the file path and retrieves its size."""
+    file_path = input("Enter the file path: ").strip()
+    if not os.path.exists(file_path):
+        print("Error: The file does not exist.")
+        return None, None, None
 
-    if not os.path.isfile(path):
-        print(f"Error: The path '{path}' does not exist.")
-        exit(1)
+    file_name = input("Enter the file name in the HDFS: ").strip()
+    file_size = os.path.getsize(file_path)
+    return file_path, file_name, file_size
 
-    size = os.path.getsize(path)
 
-    files_r = requests.post(NN_URL_FILES, json={"file_name": filename, "size": size})
-    files_info = files_r.json()
+def create_file_in_namenode(file_name, file_size):
+    """Creates a file in the namenode and gets the block allocation."""
+    response = requests.post(
+        f"{NAMENODE_URL}/files", json={"name": file_name, "size": file_size}
+    )
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error creating file in the Namenode: {response.text}")
+        return None
 
-    config_r = requests.get(NN_URL_CONFIG)
-    config_info = config_r.json()
 
-    blocks = files_info.get("blocks")
-    block_size = config_info.get("block_size")
+def upload_blocks(file_path, file_name, file_metadata):
+    """Reads the file in blocks and uploads them to the assigned datanodes."""
+    with open(file_path, "rb") as f:
+        for block in file_metadata["blocks"]:
+            block_data = f.read(block["size"])  # Read the block size
 
-    with open(path, "rb") as file:
-        for block_info in blocks:
-            block_number = block_info['number']
-            block_replicas = block_info['replicas']
-            block_size = block_info['size']
+            for replica in block["replicas"]:
+                datanode_url = f"http://{replica['host']}:{replica['port']}/files/{file_name}/blocks/{block['number']}/content"
 
-            block_data = file.read(block_size)
-            if not block_data:
-                break  
-            
-            for replica_index, datanode in enumerate(block_replicas):
-                datanode_url = f"http://{datanode['host']}:{datanode['port']}/blocks/{filename}/{block_number}/{replica_index}"
-                response = requests.put(datanode_url, data=block_data)
-                
+                # Debugging
+                print(f"Uploading block {block['number']} to {datanode_url}")
+
+                response = requests.put(datanode_url, files={"file": block_data})
+
                 if response.status_code == 200:
-                    print(f"Block {block_number} replica {replica_index} uploaded successfully to {datanode['host']}:{datanode['port']}")
+                    print(
+                        f"Block {block['number']} successfully uploaded to {datanode_url}"
+                    )
                 else:
-                    print(f"Failed to upload Block {block_number} replica {replica_index} to {datanode['host']}:{datanode['port']}")
+                    print(
+                        f"Error uploading block {block['number']} to {datanode_url}: {response.text}"
+                    )
 
 
 if __name__ == "__main__":
-    upload()
+    local_path, hdfs_name, size = get_file_info()
 
+    if local_path and hdfs_name and size:
+        metadata = create_file_in_namenode(hdfs_name, size)
+        if metadata:
+            upload_blocks(local_path, hdfs_name, metadata)
