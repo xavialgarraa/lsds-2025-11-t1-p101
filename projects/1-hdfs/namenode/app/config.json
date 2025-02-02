@@ -16,6 +16,6 @@
             "port": 8003
         }
     ],
-    "replication_factor": 2,
+    "replication_factor": 6,
     "block_size": 100
 }

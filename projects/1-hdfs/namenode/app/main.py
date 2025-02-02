@@ -225,7 +225,7 @@ def upload_files(file: File):
             ]
 
             # If there are no available datanodes, select from all datanodes
-            if len(available_datanodes) == 0:
+            if not available_datanodes:
                 available_datanodes = [
                     (datanode, count)
                     for datanode, count in datanode_block_count.items()
