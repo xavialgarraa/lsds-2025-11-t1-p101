@@ -32,7 +32,7 @@ async def get_file_block(filename: str, block_number: int):
     # Check if the file exists
     if not os.path.exists(storage_path):
         raise HTTPException(status_code=404, detail="Block not found")
-    
+
     print(f"Checking file at: {storage_path}")
 
     # Return the file
