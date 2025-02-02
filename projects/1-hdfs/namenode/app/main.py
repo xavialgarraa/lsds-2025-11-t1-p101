@@ -122,3 +122,135 @@ def read_file(filename: str):
         return files_metadata[filename]
     else:
         raise HTTPException(status_code=400, detail=f"File {filename} not found.")
+
+
+datanode_map = {}
+for datanode in datanodes:
+    datanode_id = datanode["id"]
+    datanode_map[datanode_id] = datanode
+
+
+@app.post("/filesad0q8")
+def upload_files(file: File):
+    # Calculate the number of blocks needed
+    if file.size % block_size != 0:
+        num_blocks = (file.size // block_size) + 1
+    else:
+        num_blocks = file.size // block_size
+
+    blocks = []  # List to store block information
+    rest_size = file.size
+
+    # Create blocks with size and replicas
+    for i in range(num_blocks):
+        size = min(block_size, rest_size)
+        rest_size -= size
+        datanode_idx = i % len(datanodes)
+
+        replicas = []
+        for j in range(num_replicas):
+            replica_idx = (datanode_idx + j) % len(datanodes)
+            replicas.append(datanodes[replica_idx]["id"])
+        blocks.append(
+            {
+                "number": i,
+                "size": size,
+                "replicas": replicas,
+            }
+        )
+
+    data = {"file_name": file.name, "size": file.size, "blocks": blocks}
+    save_files(data)  # Save the file data
+
+    return {
+        "file_name": file.name,
+        "size": file.size,
+        "number_blocks": num_blocks,
+        "blocks": blocks,
+    }
+
+
+@app.get("/filesad0q8/{filename}")
+def read_file(filename: str):
+    files_metadata = load_files()
+    if filename in files_metadata:
+        file_data = files_metadata[filename]
+        for block in file_data["blocks"]:
+            for i, replica_id in enumerate(block["replicas"]):
+                datanode = datanode_map.get(replica_id)
+                if datanode:
+                    block["replicas"][i] = {
+                        "id": replica_id,
+                        "host": datanode["host"],
+                        "port": datanode["port"],
+                    }
+        return file_data
+    else:
+        raise HTTPException(status_code=400, detail=f"File {filename} not found.")
+
+
+@app.post("/filesad0q9")
+def upload_files(file: File):
+    # Calculate the number of blocks needed
+    if file.size % block_size != 0:
+        num_blocks = (file.size // block_size) + 1
+    else:
+        num_blocks = file.size // block_size
+
+    # Initialize the datanode block count
+    datanode_block_count = {datanode["id"]: 0 for datanode in datanodes}
+
+    blocks = []  # List to store block information
+    rest_size = file.size
+
+    # Create blocks with size and replicas
+    for i in range(num_blocks):
+        size = min(block_size, rest_size)
+        rest_size -= size
+
+        # Find the datanode with the least number of blocks
+        sorted_datanodes = sorted(datanode_block_count.items(), key=lambda x: x[1])
+        datanode_idx = sorted_datanodes[0][0]  # Select the least loaded datanode
+
+        datanode_block_count[datanode_idx] += 1
+
+        replicas = [datanode_idx]
+        for j in range(1, num_replicas):
+            available_datanodes = [
+                (datanode, count)
+                for datanode, count in datanode_block_count.items()
+                if datanode != datanode_idx
+                and count
+                < 2  # Limit the number of blocks per datanode to 2 as seen in theory
+            ]
+
+            # If there are no available datanodes, select from all datanodes
+            if len(available_datanodes) == 0:
+                available_datanodes = [
+                    (datanode, count)
+                    for datanode, count in datanode_block_count.items()
+                ]
+
+            # Select the datanode with the least number of blocks
+            sorted_available_datanodes = sorted(available_datanodes, key=lambda x: x[1])
+            replica_idx = sorted_available_datanodes[0][0]
+            replicas.append(replica_idx)
+            datanode_block_count[replica_idx] += 1
+
+        blocks.append(
+            {
+                "number": i,
+                "size": size,
+                "replicas": replicas,
+            }
+        )
+
+    data = {"file_name": file.name, "size": file.size, "blocks": blocks}
+    save_files(data)  # Save the file data
+
+    return {
+        "file_name": file.name,
+        "size": file.size,
+        "number_blocks": num_blocks,
+        "blocks": blocks,
+    }
