@@ -40,3 +40,19 @@ async def get_file_block(filename: str, block_number: int):
         return FileResponse(storage_path)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reading file block: {e}")
+
+
+@app.delete("/files/{filename}/blocks/{block_number}")
+def delete_file_block(filename: str, block_number: int):
+    storage_path = os.path.join("datanode/storage", filename, str(block_number))
+
+    if not os.path.exists(storage_path):
+        raise HTTPException(status_code=404, detail="Block not found")
+
+    try:
+        os.remove(storage_path)
+        print(f"Block {block_number} of file {filename} deleted successfully.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting file block: {e}")
+
+    return {"message": f"Block {block_number} of file {filename} deleted successfully."}

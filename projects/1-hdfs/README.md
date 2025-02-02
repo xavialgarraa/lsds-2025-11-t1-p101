@@ -833,7 +833,7 @@ For example, to download the block `0` of a file named `myfile.jpg` from the `da
 
 You can earn an additional 2 marks (over 10) on this project's grade by working on additional exercises. To earn the full +2, you need to complete 4 additional exercises.
 
-Additional exercises done: 0, 8, 9
+Additional exercises done: 0, 8, 9, 13 (datanode extension works)
 
 ### [AD0Q0] Build a unified client with click
 

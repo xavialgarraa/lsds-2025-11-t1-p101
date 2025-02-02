@@ -2,6 +2,7 @@ from typing import Union
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import json
+import requests
 
 app = FastAPI()
 
@@ -254,3 +255,65 @@ def upload_files(file: File):
         "number_blocks": num_blocks,
         "blocks": blocks,
     }
+
+
+@app.delete("/files/{filename}")
+def delete_file(filename: str):
+    print(f"Attempting to delete file: {filename}")
+    try:
+        files_metadata = load_files()
+        print(f"Loaded files metadata: {files_metadata}")
+    except Exception as e:
+        print(f"Error loading files metadata: {e}")
+        raise HTTPException(status_code=500, detail="Error loading files metadata")
+
+    if filename not in files_metadata:
+        print(f"File {filename} not found in metadata.")
+        raise HTTPException(status_code=404, detail=f"File {filename} not found.")
+
+    # Notify datanodes to delete file blocks
+    for block in files_metadata[filename]["blocks"]:
+        for replica in block["replicas"]:
+            datanode_url = f"http://{replica['host']}:{replica['port']}/files/{filename}/blocks/{block['number']}"
+            print(f"Sending DELETE request to {datanode_url}")
+            try:
+                response = requests.delete(datanode_url)
+                if response.status_code != 200:
+                    print(
+                        f"Error deleting block {block['number']} from {datanode_url}: {response.text}"
+                    )
+                    raise HTTPException(
+                        status_code=500,
+                        detail=f"Error deleting block {block['number']} from {datanode_url}: {response.text}",
+                    )
+            except Exception as e:
+                print(
+                    f"Exception occurred while sending DELETE request to {datanode_url}: {e}"
+                )
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Exception occurred while sending DELETE request to {datanode_url}: {e}",
+                )
+
+    # Remove file metadata
+    try:
+        del files_metadata[filename]
+        print(f"File metadata for {filename} removed.")
+    except Exception as e:
+        print(f"Error removing file metadata for {filename}: {e}")
+        raise HTTPException(
+            status_code=500, detail=f"Error removing file metadata for {filename}: {e}"
+        )
+
+    # Save updated metadata
+    try:
+        with open("app/files.json", "w") as file:
+            json.dump(files_metadata, file, indent=4)
+        print(f"Metadata for file {filename} deleted successfully.")
+    except Exception as e:
+        print(f"Error writing to JSON file: {e}")
+        raise HTTPException(
+            status_code=500, detail="Failed to save updated metadata to the JSON file."
+        )
+
+    return {"message": f"File {filename} deleted successfully."}
