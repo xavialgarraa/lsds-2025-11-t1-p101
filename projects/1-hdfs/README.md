@@ -291,7 +291,9 @@ When a new file is created, you must return the number of blocks and the datanod
 
 Test it works with curl and paste a screenshot. Verify the new file is also stored to `files.json` and paste a screenshot.
 
-## ![](screenshots/L1Q1.png)
+![](screenshots/L1Q1-1.png)
+
+![](screenshots/L1Q1-2.png)
 
 ### [L1Q2] [10 marks] GET /files/{filename}
 
@@ -305,7 +307,7 @@ Test it works with curl and paste a screenshot.
 
 Make sure you return a 404 if the file is not found in `files.json`.
 
-## ![](screenshots/L1Q2-2.png)
+![](screenshots/L1Q2-2.png)
 
 ### [L1Q3] [5 marks] Deploying the namenode using docker-compose
 
@@ -325,7 +327,13 @@ Start the service: `docker compose up`.
 
 Test you can create a file and get a file with curl and paste a screenshot.
 
+![](screenshots/L1Q3-1.png)
+
+![](screenshots/L1Q3-2.png)
+
 Also, paste a screenshot of the content of the `files.json` file using the `Files` tab in `Docker Desktop` to explore the files inside the container.
+
+![](screenshots/L1Q1-2.png)
 
 ---
 
