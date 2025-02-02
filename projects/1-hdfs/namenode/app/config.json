@@ -1,14 +1,17 @@
 {
     "datanodes": [
         {
+            "id": "f3b8e3b2-8b22-464f-b607-1dbf8eecaf7d",
             "host": "localhost",
             "port": 8001
         },
         {
+            "id": "07c95d3f-9676-4ee8-bf24-7edb464ea26b",
             "host": "localhost",
             "port": 8002
         },
         {
+            "id": "ae5770db-1f78-48f0-98b5-01fc16b67f89",
             "host": "localhost",
             "port": 8003
         }
