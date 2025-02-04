@@ -31,7 +31,7 @@ Remember you must format your code with black and follow PEP8 conventions.
 ### [L3Q1] [5 marks] Parsing JSON with Python
 
 - Create a file `tweet_parser.py`
-- Create a `Tweet` dataclass with fields for the `tweet_id` (int), `text` (str), `user_id` (int), `user_name` (str), `language` (str), `timestamp_ms` (int) and `retweet_count` (int). [Help](https://realpython.com/python-data-classes/)
+- Create a `Tweet` dataclass with fields for the `tweet_id` (int), `text` (str), `user_id` (int), `user_name` (str), `language` (str), `timestamp_ms` (int), `retweeted_id` (int, the id of the retweeted tweet or None) and `retweeted_user_id` (int, the id of the retweeted tweet's user or None). [Help](https://realpython.com/python-data-classes/)
 - Create a function `parse_tweet(tweet: str) -> Tweet` that takes in a Tweet as a Json string and returns a Tweet object. [Help](https://stackoverflow.com/a/7771071)
 - Read the first line of `Eurovision3.json` and print the result of `parse_tweet`. [Help](https://stackoverflow.com/questions/1904394/read-only-the-first-line-of-a-file)
 - Take a screenshot and add it to the README.
