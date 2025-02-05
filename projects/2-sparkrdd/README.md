@@ -21,8 +21,7 @@ Remember you must format your code with black and follow PEP8 conventions.
 
 - Follow the Developer Setup to download the needed data if you did not at the beginning of the course.
 - Take a look at the first Tweet: `cat Eurovision3.json -n | head -n 1 | jq`. [Help](https://unix.stackexchange.com/questions/288521/with-the-linux-cat-command-how-do-i-show-only-certain-lines-by-number#:~:text=cat%20%2Fvar%2Flog%2Fsyslog%20-n%20%7C%20head%20-n%2050%20%7C,-b10%20-a10%20will%20show%20lines%2040%20thru%2060.)
-
-![](screenshots/L3Q0.png)
+  ![](screenshots/L3Q0-1.png)
 
 - **[1 mark]** What field in the JSON object of a Tweet contains the user bio? "users{description: }"
 - **[1 mark]** What field in the JSON object of a Tweet contains the language? "lang".
@@ -30,6 +29,7 @@ Remember you must format your code with black and follow PEP8 conventions.
 - **[1 mark]** What field in the JSON object of a Tweet contains the number of followers? "followers_count"
 - Take a look at the first two lines: `cat Eurovision3.json -n | head -n 2`.
 - **[1 mark]** How many Tweets does each line contain? Each tweet ocupies more than 30 lines.
+  ![](screenshots/L3Q0-2.png)
 
 ### [L3Q1] [5 marks] Parsing JSON with Python
 
@@ -39,6 +39,7 @@ Remember you must format your code with black and follow PEP8 conventions.
 - Read the first line of `Eurovision3.json` and print the result of `parse_tweet`. [Help](https://stackoverflow.com/questions/1904394/read-only-the-first-line-of-a-file)
 - Take a screenshot and add it to the README.
 - Push your changes.
+  ![](screenshots/L3Q1.png)
 
 ### [L3Q2] [5 marks] Counting Tweets by language
 
@@ -49,6 +50,7 @@ Remember you must format your code with black and follow PEP8 conventions.
 - Count the number of Tweets of each language using a dictionary. [Help](https://www.w3schools.com/python/python_dictionaries.asp)
 - Print the dictionary. Take a screenshot and add it to the README.
 - Push your changes.
+  ![](screenshots/L3Q2.png)
 
 ## Seminar 3: Using Spark RDDs
 
