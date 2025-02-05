@@ -27,7 +27,7 @@ def parse_tweet(tweet: str) -> Tweet:
     )
 
 if __name__ == "__main__":
-    with open("Eurovision3.json", "r", encoding="utf-8") as f:
+    with open("data/Eurovision3.json", "r", encoding="utf-8") as f:
         first_line = f.readline().strip()
         tweet = parse_tweet(first_line)
         print(tweet)
