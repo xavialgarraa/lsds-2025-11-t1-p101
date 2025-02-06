@@ -100,6 +100,10 @@ The file [people.txt](./data/people.txt) has many lines, each with `{NAME} {LANG
 - Create a file `spark_count_people.py`
 - Implement and run a Spark job that counts how many people live in each city.
 - Write the command you used to run it in the README and show a screenshot of the result.
+```zsh
+docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_count_people.py es /opt/bitnami/spark/app/data/people.txt
+```
+![](screenshots/S3Q3-2.png)
 
 ### [S3Q4] [5 marks] Count the bigrams
 
@@ -108,6 +112,10 @@ The file [cat.txt](./data/cat.txt) has many lines, each with a sentence.
 - Create a file `spark_count_bigrams.py`
 - Implement and run a Spark job that counts how many people live in each city.
 - Write the command you used to run it in the README and show a screenshot of the result.
+```zsh
+docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_count_bigrams.py es /opt/bitnami/spark/app/data/cat.txt
+```
+![](screenshots/S3Q4-2.png)
 
 ## Lab 4: Analyzing Tweets with Spark
 
