@@ -67,6 +67,7 @@ Remember you must format your code with black and follow PEP8 conventions.
 - Check the local IP for the Spark Master service in the `spark-master-1` container logs. You should see a log similar to `Starting Spark master at spark://172.20.0.2:7077`.
 - Run the job with Spark: `docker-compose exec spark-master spark-submit --master spark://{IP_FRM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_sum.py /opt/bitnami/spark/app/data/numbers1.txt`
 - **[1 mark]** Take a close look at the logs. What was the result of your job?
+![](screenshots/spark_sum.png)
 
 ### [S3Q1] [5 marks] Sum the numbers
 
@@ -75,6 +76,10 @@ The file [numbers2.txt](./data/numbers2.txt) has many lines, each with many numb
 - Create a file `spark_sum2.py`
 - Implement and run a Spark job that computes the sum of all the numbers.
 - Write the command you used to run it in the README and show a screenshot of the result.
+```zsh
+docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_sum2.py es /opt/bitnami/spark/app/data/numbers2.txt
+```
+![](screenshots/spark_sum2.png)
 
 ### [S3Q2] [5 marks] Sum the even numbers
 
@@ -83,6 +88,10 @@ The file [numbers2.txt](./data/numbers2.txt) has many lines, each with many numb
 - Create a file `spark_sum3.py`
 - Implement and run a Spark job that computes the sum of all the even numbers.
 - Write the command you used to run it in the README and show a screenshot of the result.
+```zsh
+docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_sum3.py es /opt/bitnami/spark/app/data/numbers2.txt
+```
+![](screenshots/spark_sum3.png)
 
 ### [S3Q3] [5 marks] Find how many people live in each city
 
