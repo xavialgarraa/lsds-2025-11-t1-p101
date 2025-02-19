@@ -5,7 +5,7 @@ from typing import Optional
 import json
 import logging
 
-# Configurar el nivel de log de Spark
+
 logging.basicConfig(level=logging.CRITICAL)
 
 @dataclass
@@ -36,40 +36,40 @@ _, language, source = sys.argv
 conf = SparkConf().setAppName("spark-tweet-retweets")
 sc = SparkContext(conf=conf)
 
-# Ajustar el nivel de log de Spark
+
 sc.setLogLevel("OFF")
 
-# Define lambda functions for parsing and filtering
+
 parse_tweet = lambda line: json.loads(line) if line.strip() else None
 filter_tweets = lambda tweet: tweet and tweet.get("lang") == language
 
-# Load and process tweets
+
 tweets_rdd = sc.textFile(source).map(parse_tweet)
 tweets_rdd = tweets_rdd.filter(filter_tweets)
 tweets_rdd = tweets_rdd.filter(lambda tweet: tweet is not None)
 
-# Filter retweets
+
 retweets_rdd = tweets_rdd.filter(lambda tweet: tweet.get("retweeted_status") is not None)
 
-# Count retweets
+
 retweet_counts_rdd = retweets_rdd.map(lambda tweet: (tweet["retweeted_status"]["id"], 1))
 retweet_totals_rdd = retweet_counts_rdd.reduceByKey(lambda a, b: a + b)
 
-# Get the top retweets
+
 top_retweets = retweet_totals_rdd.takeOrdered(10, key=lambda x: -x[1])
 
-# Mostrar el total de retweets en el top
+
 print(f"Total de retweets procesados (top): {len(top_retweets)}")
 print(f"Primeros elementos del top de retweets: {top_retweets[:10]}")
 
 
-# Crear un diccionario con los textos de los tweets originales desde los retweets
+
 original_tweets_dict = retweets_rdd.map(lambda tweet: (tweet["retweeted_status"]["id"], 
                                                        (tweet["retweeted_status"]["text"], 
                                                         tweet["retweeted_status"]["user"]["name"]))) \
                                    .collectAsMap()
 
-# Mostrar los tweets más retweeteados
+
 for tweet_id, retweet_count in top_retweets:
     if tweet_id in original_tweets_dict:
         text, user_name = original_tweets_dict[tweet_id]
