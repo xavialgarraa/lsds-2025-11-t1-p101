@@ -129,6 +129,8 @@ docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS
 ```zsh
 docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_tweet_language_filter.py zh /opt/bitnami/spark/app/data/Eurovision3.json /opt/bitnami/spark/output/Eurovision3Zh.json
 ```
+![](screenshots/L4Q0.png)
+![](screenshots/L4Q0-1.png)
 
 > You might need to `chmod 755 data` if you get "file not found" errors
 
