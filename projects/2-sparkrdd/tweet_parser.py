@@ -16,12 +16,12 @@ class Tweet:
 def parse_tweet(tweet: str) -> Tweet:
     data = json.loads(tweet)
     return Tweet(
-        tweet_id=data["id"],
-        text=data["text"],
-        user_id=data["user"]["id"],
-        user_name=data["user"]["name"],
-        language=data["lang"],
-        timestamp_ms=int(data["timestamp_ms"]),
+        tweet_id=data["id"] if "id" in data else None,
+        text=data["text"] if "text" in data else None,
+        user_id=data["user"]["id"] if "user" in data else None,
+        user_name=data["user"]["name"] if "name" in data else None,
+        language=data["lang"] if "lang" in data else None,
+        timestamp_ms=int(data["timestamp_ms"]) if "timestamp_ms" in data else None,
         retweeted_id=data["retweeted_status"]["id"] if "retweeted_status" in data else None,
         retweeted_user_id=data["retweeted_status"]["user"]["id"] if "retweeted_status" in data else None,
     )
