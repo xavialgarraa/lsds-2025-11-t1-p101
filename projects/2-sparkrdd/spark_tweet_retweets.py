@@ -1,8 +1,6 @@
 from pyspark import SparkConf, SparkContext
 import sys
 from tweet_parser import parse_tweet, Tweet
-from dataclasses import dataclass
-from typing import Optional
 import json
 import logging
 
