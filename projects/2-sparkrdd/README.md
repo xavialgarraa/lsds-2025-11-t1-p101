@@ -23,13 +23,48 @@ Remember you must format your code with black and follow PEP8 conventions.
 - Take a look at the first Tweet: `cat Eurovision3.json -n | head -n 1 | jq`. [Help](https://unix.stackexchange.com/questions/288521/with-the-linux-cat-command-how-do-i-show-only-certain-lines-by-number#:~:text=cat%20%2Fvar%2Flog%2Fsyslog%20-n%20%7C%20head%20-n%2050%20%7C,-b10%20-a10%20will%20show%20lines%2040%20thru%2060.)
   ![](screenshots/L3Q0-1.png)
 
-- **[1 mark]** What field in the JSON object of a Tweet contains the user bio? "users{description: }"
-- **[1 mark]** What field in the JSON object of a Tweet contains the language? "lang".
-- **[1 mark]** What field in the JSON object of a Tweet contains the text content? "text"
-- **[1 mark]** What field in the JSON object of a Tweet contains the number of followers? "followers_count"
+- **[1 mark]** What field in the JSON object of a Tweet contains the user bio? `users{description: }`
+- **[1 mark]** What field in the JSON object of a Tweet contains the language? `lang`.
+- **[1 mark]** What field in the JSON object of a Tweet contains the text content? `text`
+- **[1 mark]** What field in the JSON object of a Tweet contains the number of followers? `followers_count`
 - Take a look at the first two lines: `cat Eurovision3.json -n | head -n 2`.
-- **[1 mark]** How many Tweets does each line contain? Each tweet ocupies more than 30 lines.
-  ![](screenshots/L3Q0-2.png)
+- **[1 mark]** How many Tweets does each line contain? Each tweet contains:
+
+1. The tweet retweeted by Alba137 (the user who made the retweet).
+2. The original tweet by Carlos Carmona (the one that was retweeted).
+3. A third tweet within the "retweeted_status" field, which is the original tweet by Carlos Carmona.
+
+```json
+{
+  "created_at": "Sat May 12 15:58:53 +0000 2018",
+  "id": 995332494974210048,
+  "id_str": "995332494974210048",
+  "text": "RT @carloscarmo98: -Manel, algo que decir sobre tu actuación en Eurovision?\n-Ki kiriketediga https://t.co/yXGYtKmJoM", // [1] Retweet by Alba137
+  "source": "<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android</a>",
+  "truncated": false,
+  "retweeted_status": {
+    "created_at": "Sat May 13 20:57:18 +0000 2017",
+    "id": 863498411517108224,
+    "id_str": "863498411517108224",
+    "text": "-Manel, algo que decir sobre tu actuación en Eurovision?\n-Kikiriketediga https://t.co/yXGYtKmJOM", //[2]: Original tweet by Carlos Carmona
+    "source": "<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android</a>",
+    "truncated": false
+  },
+  "geo": null,
+  "coordinates": null,
+  "place": null,
+  "contributors": null,
+  "retweeted_status": {
+    //[3]: Original tweet by Carlos Carmona (inside the retweeted_status)
+    "created_at": "Sat May 13 20:57:18 +0000 2017",
+    "id": 863498411517108224,
+    "id_str": "863498411517108224",
+    "text": "-Manel, algo que decir sobre tu actuación en Eurovision?\n-Kikiriketediga https://t.co/yXGYtKmJoM", //[3]: Same as Tweet 2
+    "source": "<a href=\"http://twitter.com/download/android\" rel=\"nofollow\">Twitter for Android</a>",
+    "truncated": false
+  }
+}
+```
 
 ### [L3Q1] [5 marks] Parsing JSON with Python
 
@@ -59,15 +94,49 @@ Remember you must format your code with black and follow PEP8 conventions.
 ### [S3Q0] [10 marks] What is Spark RDD?
 
 - **[1 mark]** What is the difference between a transformation and an action?
+  Transformations in Spark RDDs are operations that define a new RDD from an existing one but are lazy, meaning they do not execute until an action is triggered. Actions, on the other hand, trigger execution and return results to the driver or store them.
 - **[1 mark]** What is the difference between a wide and a narrow dependency? What is a stage in Spark RDD?
+
+  - A narrow dependency means that each partition of the child RDD depends on at most one partition of the parent RDD (e.g., map, filter).
+
+  - A wide dependency means that each partition of the child RDD depends on multiple partitions of the parent RDD, requiring data shuffling (e.g., groupByKey, reduceByKey).
+
+  - A stage in Spark represents a set of transformations that can be executed together without requiring shuffling.
+
 - Start up a Spark cluster locally using Docker compose: `docker-compose up`.
 - **[1 mark]** How many Spark workers exist in your local cluster? Take a screenshot of Docker Desktop and add it to the README.
+  In our local cluster we have 1 master + 2 workers.
+  ![](screenshots/S3Q0.png)
+
 - **[3 mark]** What is a lambda function in Python?
+  A lambda function is an anonymous function defined using the lambda keyword. It can take multiple arguments but only has a single expression, which is implicitly returned. Example:
+  ```python
+  square = lambda x: x ** 2
+  print(square(4))  # Output: 16
+  ```
 - **[3 mark]** What do the RDD operations `map`, `filter`, `groupByKey` and `flatMap` do?
+  - map: Applies a function to each element and returns a new RDD.
+    ```python
+    rdd.map(lambda x: x * 2)  # Doubles each element
+    ```
+  - filter: Filters elements based on a condition.
+    ```python
+    rdd.filter(lambda x: x % 2 == 0)  # Keeps only even numbers
+    ```
+  - groupByKey: Groups values by key, causing a wide dependency.
+    ```python
+    rdd = sc.parallelize([("a", 1), ("b", 2), ("a", 3)])
+    rdd.groupByKey().mapValues(list).collect()
+    # Output: [('a', [1, 3]), ('b', [2])]
+    ```
+  - flatMap: Similar to map, but flattens the result.
+    ```python
+    rdd.flatMap(lambda x: x.split(" "))  #Splits strings into words
+    ```
 - Check the local IP for the Spark Master service in the `spark-master-1` container logs. You should see a log similar to `Starting Spark master at spark://172.20.0.2:7077`.
 - Run the job with Spark: `docker-compose exec spark-master spark-submit --master spark://{IP_FRM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_sum.py /opt/bitnami/spark/app/data/numbers1.txt`
 - **[1 mark]** Take a close look at the logs. What was the result of your job?
-![](screenshots/spark_sum.png)
+  ![](screenshots/spark_sum.png)
 
 ### [S3Q1] [5 marks] Sum the numbers
 
@@ -76,9 +145,11 @@ The file [numbers2.txt](./data/numbers2.txt) has many lines, each with many numb
 - Create a file `spark_sum2.py`
 - Implement and run a Spark job that computes the sum of all the numbers.
 - Write the command you used to run it in the README and show a screenshot of the result.
+
 ```zsh
 docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_sum2.py es /opt/bitnami/spark/app/data/numbers2.txt
 ```
+
 ![](screenshots/spark_sum2.png)
 
 ### [S3Q2] [5 marks] Sum the even numbers
@@ -88,9 +159,11 @@ The file [numbers2.txt](./data/numbers2.txt) has many lines, each with many numb
 - Create a file `spark_sum3.py`
 - Implement and run a Spark job that computes the sum of all the even numbers.
 - Write the command you used to run it in the README and show a screenshot of the result.
+
 ```zsh
 docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_sum3.py es /opt/bitnami/spark/app/data/numbers2.txt
 ```
+
 ![](screenshots/spark_sum3.png)
 
 ### [S3Q3] [5 marks] Find how many people live in each city
@@ -100,9 +173,11 @@ The file [people.txt](./data/people.txt) has many lines, each with `{NAME} {LANG
 - Create a file `spark_count_people.py`
 - Implement and run a Spark job that counts how many people live in each city.
 - Write the command you used to run it in the README and show a screenshot of the result.
+
 ```zsh
 docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_count_people.py es /opt/bitnami/spark/app/data/people.txt
 ```
+
 ![](screenshots/S3Q3-2.png)
 
 ### [S3Q4] [5 marks] Count the bigrams
@@ -112,9 +187,11 @@ The file [cat.txt](./data/cat.txt) has many lines, each with a sentence.
 - Create a file `spark_count_bigrams.py`
 - Implement and run a Spark job that counts how many people live in each city.
 - Write the command you used to run it in the README and show a screenshot of the result.
+
 ```zsh
 docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_count_bigrams.py es /opt/bitnami/spark/app/data/cat.txt
 ```
+
 ![](screenshots/S3Q4-2.png)
 
 ## Lab 4: Analyzing Tweets with Spark
@@ -129,6 +206,7 @@ docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS
 ```zsh
 docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_tweet_language_filter.py zh /opt/bitnami/spark/app/data/Eurovision3.json /opt/bitnami/spark/output/Eurovision3Zh.json
 ```
+
 ![](screenshots/L4Q0.png)
 ![](screenshots/L4Q0-1.png)
 
@@ -155,6 +233,8 @@ docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS
 ```zsh
 docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_tweet_retweets.py es /opt/bitnami/spark/app/data/Eurovision3.json
 ```
+
+![](screenshots/L4Q2.png)
 
 ### [L4Q3] [10 marks] Get the 10 most retweeted users
 
@@ -194,8 +274,7 @@ AWS allows us to rent virtual servers and deploy a Spark cluster to do data anly
   - Name: `lsds-2025-{group_number}-t{theory_number}-p{lab_number}-s{seminar_number}-s3bucket`
 
 - Paste a screenshot
-
--   ![](screenshots/S4Q0.png)
+  ![](screenshots/S4Q0.png)
 
 - In the bucket, create 4 folders: `input`, `app`, `logs` and `output`
 
@@ -204,11 +283,12 @@ AWS allows us to rent virtual servers and deploy a Spark cluster to do data anly
 - Upload the `Eurovision3.json` file inside the `input` folder
 
 - Paste a screenshot
+  ![](screenshots/S4Q0-1.png)
 
 - Upload `spark_tweet_user_retweets.py` and `tweet_parser.py` in the `app` folder
 
 - Paste a screenshot
-
+  ![](screenshots/S4Q0-2.png)
 - Open the [EMR console](https://us-east-1.console.aws.amazon.com/emr/home?region=us-east-1#/clusters)
 
 - Create a cluster
@@ -231,15 +311,19 @@ AWS allows us to rent virtual servers and deploy a Spark cluster to do data anly
   - Arguments: specify the input and output. For example: `es s3://lsds-2025-miquel-test/input/Eurovision3.json`.
 
 - Paste a screenshot
+  ![](screenshots/S4Q0-3.png)
 
 - When you submit a step, wait until the `Status` is `Completed`.
 
 - Paste a screenshot
+  ![](screenshots/S4Q0-4.png)
 
 > [!TIP]
 > You can find the logs in your S3 bucket: `logs/{cluster id}/containers/application_*_{run number}/container_*_000001/stdout.gz` - they might take some minutes to appear
 
 - Paste a screenshot of the log where we can see: how much time it took, what are the ids of the ten most retweeted users.
+
+![](screenshots/S4Q0-5.png)
 
 # Additional exercises
 
