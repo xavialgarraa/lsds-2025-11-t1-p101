@@ -195,6 +195,8 @@ AWS allows us to rent virtual servers and deploy a Spark cluster to do data anly
 
 - Paste a screenshot
 
+-   ![](screenshots/S4Q0.png)
+
 - In the bucket, create 4 folders: `input`, `app`, `logs` and `output`
 
 - Paste a screenshot
