@@ -1,36 +1,64 @@
-from pyspark import SparkContext, SparkConf
-from pyspark.sql import SparkSession
 import sys
 import json
+import shutil
+import os
+from pyspark import SparkConf, SparkContext
+from collections import Counter
+
+if len(sys.argv) != 4:
+    sys.exit(
+        "Usage: spark-submit spark_tweet_bigram_counter.py <lang> <input_file> <output_file>"
+    )
+
+language_code, input_file, output_file = sys.argv[1:4]
+temp_output_dir = f"{output_file}_info"
+
+# Configure Spark
+conf = SparkConf().setAppName("TweetBigramCounter")
+sc = SparkContext(conf=conf)
 
 
+# Helper functions
 def parse_tweet(line):
-    tweet = json.loads(line)
-    return tweet.get("lang", "unknown"), tweet.get("text", "")
+    try:
+        return json.loads(line) if line.strip() else None
+    except json.JSONDecodeError:
+        return None
+
+
+def filter_tweets(tweet):
+    return tweet and tweet.get("lang") == language_code
 
 
 def extract_bigrams(text):
     words = text.split()
-    return zip(words, words[1:])
+    return [(words[i], words[i + 1]) for i in range(len(words) - 1)]
 
 
-if __name__ == "__main__":
-    _, lang, source, output = sys.argv
+# Processing with RDD
+tweets_rdd = (
+    sc.textFile(input_file)
+    .map(parse_tweet)
+    .filter(filter_tweets)
+    .map(lambda tweet: tweet.get("text", ""))
+    .flatMap(extract_bigrams)
+    .map(lambda bigram: (bigram, 1))
+    .reduceByKey(lambda a, b: a + b)
+    .sortBy(lambda pair: -pair[1])
+)
 
-    conf = SparkConf().setAppName("spark-tweet-bigrams")
-    sc = SparkContext(conf=conf)
-    spark = SparkSession(sc)
+# Save the results
+tweets_rdd.map(lambda pair: json.dumps({"bigram": pair[0], "count": pair[1]})).coalesce(
+    1
+).saveAsTextFile(temp_output_dir)
 
-    tweets_rdd = sc.textFile(source)
-    filtered_tweets_rdd = tweets_rdd.map(parse_tweet).filter(lambda x: x[0] == lang)
-    bigrams_rdd = filtered_tweets_rdd.flatMap(lambda x: extract_bigrams(x[1])).map(
-        lambda bigram: (" ".join(bigram), 1)
-    )
-    bigram_counts_rdd = bigrams_rdd.reduceByKey(lambda a, b: a + b).filter(
-        lambda x: x[1] > 1
-    )
-    sorted_bigrams_rdd = bigram_counts_rdd.sortBy(lambda x: x[1], ascending=False)
+# Extract the final file
+for file in os.listdir(temp_output_dir):
+    if file.startswith("part-"):
+        shutil.move(f"{temp_output_dir}/{file}", output_file)
+        break
 
-    sorted_bigrams_rdd.saveAsTextFile(output)
+# Stop Spark
+sc.stop()
 
-    sc.stop()
+print(f"Final file saved in: {output_file}")
