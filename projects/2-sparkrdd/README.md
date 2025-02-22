@@ -166,6 +166,8 @@ docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS
 docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_tweet_user_retweets.py es /opt/bitnami/spark/app/data/Eurovision3.json
 ```
 
+![](screenshots/L4Q3.png)
+
 ## Seminar 4: Running Spark in AWS
 
 AWS allows us to rent virtual servers and deploy a Spark cluster to do data anlysis at scale. In this seminar, you will learn how to:
