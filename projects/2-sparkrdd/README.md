@@ -231,6 +231,9 @@ docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS
 docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 /opt/bitnami/spark/app/spark_tweet_bigrams.py es /opt/bitnami/spark/app/data/Eurovision3.json /opt/bitnami/spark/output/Eurovision3EsBigrams
 ```
 
+![](screenshots/L4Q1.png)
+![](screenshots/L4Q1-1.png)
+
 ### [L4Q2] [10 marks] Get the 10 most retweeted tweets
 
 - Create a file `spark_tweet_retweets.py`.

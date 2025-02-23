@@ -33,6 +33,7 @@ tweets_rdd = (
     .flatMap(extract_bigrams)
     .map(lambda bigram: (bigram, 1))
     .reduceByKey(lambda a, b: a + b)
+    .filter(lambda x: x[1] > 1)
     .sortBy(lambda pair: -pair[1])
 )
 
