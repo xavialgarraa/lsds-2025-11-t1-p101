@@ -279,16 +279,17 @@ AWS allows us to rent virtual servers and deploy a Spark cluster to do data anly
 - In the bucket, create 4 folders: `input`, `app`, `logs` and `output`
 
 - Paste a screenshot
+  ![](screenshots/S4Q0-1.png)
 
 - Upload the `Eurovision3.json` file inside the `input` folder
 
 - Paste a screenshot
-  ![](screenshots/S4Q0-1.png)
+  ![](screenshots/S4Q0-2.png)
 
 - Upload `spark_tweet_user_retweets.py` and `tweet_parser.py` in the `app` folder
 
 - Paste a screenshot
-  ![](screenshots/S4Q0-2.png)
+![](screenshots/S4Q0-3.png)
 - Open the [EMR console](https://us-east-1.console.aws.amazon.com/emr/home?region=us-east-1#/clusters)
 
 - Create a cluster
@@ -311,19 +312,22 @@ AWS allows us to rent virtual servers and deploy a Spark cluster to do data anly
   - Arguments: specify the input and output. For example: `es s3://lsds-2025-miquel-test/input/Eurovision3.json`.
 
 - Paste a screenshot
-  ![](screenshots/S4Q0-3.png)
+ ![](screenshots/S4Q0-4.png)
 
 - When you submit a step, wait until the `Status` is `Completed`.
 
 - Paste a screenshot
-  ![](screenshots/S4Q0-4.png)
+ ![](screenshots/S4Q0-5.png)
+ ![](screenshots/S4Q0-6.png)
+
 
 > [!TIP]
 > You can find the logs in your S3 bucket: `logs/{cluster id}/containers/application_*_{run number}/container_*_000001/stdout.gz` - they might take some minutes to appear
 
 - Paste a screenshot of the log where we can see: how much time it took, what are the ids of the ten most retweeted users.
 
-![](screenshots/S4Q0-5.png)
+![](screenshots/S4Q0-7.png)
+No esta bien
 
 # Additional exercises
 
