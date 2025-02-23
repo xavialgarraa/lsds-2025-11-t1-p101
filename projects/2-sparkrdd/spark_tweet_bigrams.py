@@ -2,8 +2,8 @@ import sys
 import json
 import shutil
 import os
+from tweet_parser import parse_tweet, Tweet
 from pyspark import SparkConf, SparkContext
-from collections import Counter
 
 if len(sys.argv) != 4:
     sys.exit(
@@ -17,30 +17,19 @@ temp_output_dir = f"{output_file}_info"
 conf = SparkConf().setAppName("TweetBigramCounter")
 sc = SparkContext(conf=conf)
 
-
-# Helper functions
-def parse_tweet(line):
-    try:
-        return json.loads(line) if line.strip() else None
-    except json.JSONDecodeError:
-        return None
-
-
-def filter_tweets(tweet):
-    return tweet and tweet.get("lang") == language_code
-
-
 def extract_bigrams(text):
     words = text.split()
     return [(words[i], words[i + 1]) for i in range(len(words) - 1)]
 
+parsed_tweet = lambda tweet: parse_tweet(tweet) if tweet.strip() else None
+filter_tweets = lambda tweet: tweet and tweet.language == language_code
 
 # Processing with RDD
 tweets_rdd = (
     sc.textFile(input_file)
-    .map(parse_tweet)
+    .map(parsed_tweet)
     .filter(filter_tweets)
-    .map(lambda tweet: tweet.get("text", ""))
+    .map(lambda tweet: tweet.text)
     .flatMap(extract_bigrams)
     .map(lambda bigram: (bigram, 1))
     .reduceByKey(lambda a, b: a + b)

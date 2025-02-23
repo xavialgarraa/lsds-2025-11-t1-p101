@@ -1,7 +1,7 @@
 from pyspark import SparkConf, SparkContext
 import sys
-import json
 import logging
+from tweet_parser import parse_tweet, Tweet
 
 logging.basicConfig(level=logging.CRITICAL)
 
@@ -12,17 +12,17 @@ sc = SparkContext(conf=conf)
 sc.setLogLevel("OFF")
 
 # Function to parse tweets
-parse_tweet = lambda line: json.loads(line) if line.strip() else None
-filter_tweets = lambda tweet: tweet and tweet.get("lang") == language
+parsed_tweet = lambda tweet: parse_tweet(tweet) if tweet.strip() else None
+filter_tweets = lambda tweet: tweet and tweet.language == language
 
 # Load and filter tweets
-tweets_rdd = sc.textFile(source).map(parse_tweet).filter(filter_tweets)
+tweets_rdd = sc.textFile(source).map(parsed_tweet).filter(filter_tweets)
 
 # Filter only retweets
-retweets_rdd = tweets_rdd.filter(lambda tweet: tweet.get("retweeted_status") is not None)
+retweets_rdd = tweets_rdd.filter(lambda tweet: tweet.retweeted_id is not None)
 
 # Get the total number of retweets per original user
-user_retweets_rdd = retweets_rdd.map(lambda tweet: (tweet["retweeted_status"]["user"]["name"], 1))
+user_retweets_rdd = retweets_rdd.map(lambda tweet: (tweet.retweeted_user_name, 1))
 user_retweet_totals_rdd = user_retweets_rdd.reduceByKey(lambda a, b: a + b)
 
 # Get the top 10 most retweeted users
