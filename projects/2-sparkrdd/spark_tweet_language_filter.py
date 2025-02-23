@@ -23,7 +23,11 @@ filter_tweets = lambda tweet: tweet and tweet.language == language_code
 tweets_rdd = sc.textFile(input_file)\
               .map(parsed_tweet)\
               .filter(filter_tweets)\
+              .map(lambda tweet: tweet.to_dict() if tweet else {})\
               .map(json.dumps)
+
+if os.path.exists(temp_output_dir):
+    shutil.rmtree(temp_output_dir)
 
 # Save in the folder
 tweets_rdd.coalesce(1).saveAsTextFile(temp_output_dir)
