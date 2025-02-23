@@ -21,6 +21,9 @@ def extract_bigrams(text):
     words = text.split()
     return [(words[i], words[i + 1]) for i in range(len(words) - 1)]
 
+def lower_text(text):
+    return text.lower()
+
 parsed_tweet = lambda tweet: parse_tweet(tweet) if tweet.strip() else None
 filter_tweets = lambda tweet: tweet and tweet.language == language_code
 
@@ -29,18 +32,18 @@ tweets_rdd = (
     sc.textFile(input_file)
     .map(parsed_tweet)
     .filter(filter_tweets)
-    .map(lambda tweet: tweet.text)
+    .map(lambda tweet: lower_text(tweet.text))
     .flatMap(extract_bigrams)
     .map(lambda bigram: (bigram, 1))
     .reduceByKey(lambda a, b: a + b)
-    .filter(lambda x: x[1] > 1)
+    .filter(lambda pair: pair[1] > 1)
     .sortBy(lambda pair: -pair[1])
 )
 
-# Save the results
-tweets_rdd.map(lambda pair: json.dumps({"bigram": pair[0], "count": pair[1]})).coalesce(
-    1
-).saveAsTextFile(temp_output_dir)
+if os.path.exists(temp_output_dir):
+    shutil.rmtree(temp_output_dir)
+
+tweets_rdd.map(lambda pair: json.dumps({"bigram": pair[0], "count": pair[1]})).coalesce(1).saveAsTextFile(temp_output_dir)
 
 # Extract the final file
 for file in os.listdir(temp_output_dir):
