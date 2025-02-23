@@ -24,7 +24,6 @@ tweets_rdd = sc.textFile(source).map(parsed_tweet).filter(filter_tweets)
 retweets_rdd = tweets_rdd.filter(lambda tweet: tweet.retweeted_id is not None)
 
 # Get the total number of retweets per original user
-#user_retweets_rdd = retweets_rdd.map(lambda tweet: (tweet.retweeted_user_name, 1))
 user_retweets_rdd = retweets_rdd.map(lambda tweet: (tweet.retweeted_user_id, 1))
 user_retweet_totals_rdd = user_retweets_rdd.reduceByKey(lambda a, b: a + b)
 
@@ -39,7 +38,6 @@ print(f"Time taken: {end_time - start_time} seconds")
 print(f"Total users processed: {len(top_users)}")
 print(f"Top 10 most retweeted users:")
 for user_id, retweet_count in top_users:
-    #print(f"User: {user_name}, Retweets: {retweet_count}")
     print(f"User ID: {user_id}, Retweets: {retweet_count}")
 
 sc.stop()

@@ -12,7 +12,6 @@ class Tweet:
     timestamp_ms: Optional[int]
     retweeted_id: Optional[int]
     retweeted_user_id: Optional[int]
-    retweeted_user_name: Optional[str]
 
     def to_dict(self):
         return asdict(self)
@@ -29,7 +28,6 @@ def parse_tweet(tweet: str) -> Tweet:
             timestamp_ms=int(data["timestamp_ms"]) if "timestamp_ms" in data else None,
             retweeted_id=data["retweeted_status"]["id"] if "retweeted_status" in data else None,
             retweeted_user_id=data["retweeted_status"]["user"]["id"] if "retweeted_status" in data else None,
-            retweeted_user_name=data["retweeted_status"]["user"]["name"] if "retweeted_status" in data and "user" in data["retweeted_status"] else None,  
         )
     except json.JSONDecodeError:
         return None
