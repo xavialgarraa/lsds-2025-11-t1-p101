@@ -196,6 +196,13 @@ docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS
 
 ## Lab 4: Analyzing Tweets with Spark
 
+For running all the codes using the parse_tweet function defined in tweet_parser.py, we have to include in the execution line the following code.
+
+```zsh
+docker-compose exec spark-master spark-submit --master spark://{IP_FROM_PREVIOUS_STEP}:7077 --py-files /opt/bitnami/spark/app/tweet_parser.py 
+```
+Followed by the desired function to run.
+
 ### [L4Q0] [10 marks] Filtering Tweets by language with Spark
 
 - Create a file `spark_tweet_language_filter.py`.
