@@ -353,6 +353,7 @@ curl -L https://dumps.wikimedia.org/other/enterprise_html/runs/20240901/enwiki-N
 ```
 
 Paste the first Wikipedia article here, properly formatted as JSON.
+![](screenshots/AD1Q0.png)
 
 ### [AD1Q1] Building the repository
 
