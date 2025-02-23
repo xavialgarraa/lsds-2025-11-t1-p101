@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import Optional
 
 @dataclass
@@ -13,6 +13,9 @@ class Tweet:
     retweeted_id: Optional[int]
     retweeted_user_id: Optional[int]
     retweeted_user_name: Optional[str]
+
+    def to_dict(self):
+        return asdict(self)
 
 def parse_tweet(tweet: str) -> Tweet:
     try:
