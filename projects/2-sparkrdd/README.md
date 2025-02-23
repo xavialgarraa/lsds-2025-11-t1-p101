@@ -338,8 +338,8 @@ AWS allows us to rent virtual servers and deploy a Spark cluster to do data anly
 
 - Paste a screenshot of the log where we can see: how much time it took, what are the ids of the ten most retweeted users.
 
-![](screenshots/S4Q0-7.png)
-No esta bien
+![](screenshots/S4Q1.png)
+
 
 # Additional exercises
 
