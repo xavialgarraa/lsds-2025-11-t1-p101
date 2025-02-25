@@ -27,12 +27,14 @@ PRODUCER_CONFIG = {
 producer = Producer(PRODUCER_CONFIG)
 actual_value = start_value
 
-# we asume that x steps + start_value = end_value
+
 while True:
     if actual_value == end_value:
         actual_value = start_value
     else:
-        actual_value += step
+        actual_value = min(
+            actual_value + step, end_value
+        )  # in case of step + actual step is not exactly end_value
     value = {"value": actual_value}
     print(f"Producing {metric_name} -> {value}")
     producer.produce(TOPIC, key=metric_name, value=json.dumps(value))
