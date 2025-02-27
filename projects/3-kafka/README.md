@@ -40,19 +40,88 @@ During this seminar session, you must create scripts that simulate the devices p
 
 **[1 mark] What is a log? What is a topic? What is a partition?**
 
+Log:
+
+- An append-only, ordered sequence of messages in a partition.
+- Messages are written sequentially and have unique offsets.
+- Each partition in Kafka is essentially a log file.
+
+Topic:
+
+- Messages in Kafka are categorized into topics.
+- A logical communication channel where messages are stored.
+- Producers send messages to topics, consumers read from them.
+- Example of topics:
+  - 'user_activity' stores login/logout events.
+  - ‘sensor_temperature’ stores temperatures sensed by a thermometer
+
+Partition:
+
+- A topic is divided into partitions to enable parallelism.
+- Each partition stores a subset of messages and maintains ordering.
+- Each partition can be hosted on a different server
+- Partitions are also the way that Kafka provides redundancy and scalability.
+- Single topic can be scaled horizontally across multiple servers (partitions) to provide performance
+- Example: The topic 'user_activity' may have 4 partitions.
+
 **[1 mark] What does the broker do? What is a producer? And a consumer?**
+
+Broker:
+
+- A single Kafka server is called a broker.
+- broker tasks:
+  - receives messages from producers,
+  - assigns offsets to them,
+  - commits the messages to storage on disk
+  - services consumers, responding to fetch requests for partitions and responding with the messages that have been committed to disk.
+- designed to operate as part of a cluster
+
+Producer:
+
+- Kafka client that writes messages to Kafka topics.
+- Producers append messages to partitions, and Kafka persists them in the log.
+
+Consumer:
+
+- A consumer is a Kafka client that reads messages from topics.
+- Consumers read messages sequentially from logs in partitions and process them
+- Tracks offsets to know which messages have been read and can commit offsets to Kafka for recovery.
+- Consumers can work independently or in Consumer Groups
 
 **[1 mark] What is a consumer group? What is a commit?**
 
+Consumer Group:
+
+- one or more consumers that work together to consume a topic.
+- what if the rate at which producers write messages to the topic exceeds the rate at which your application can validate them? => there is a need to scale consumption from topics.
+- multiple consumers to read from the same topic, splitting the data between them
+
+Commit:
+
+- action of updating the current position in the partition a commit
+- Kafka allows consumers to track their position(offset) in each partition.
+- When consumer makes progress, it commits the offsets of messages it has successfully processed.
+
 **[1 mark] Is ordering guaranteed in Kafka?**
+
+Ordering is guaranteed within a partition but not across partitions.
+
+- Within a Partition: Messages are stored in a strict, append-only log and assigned sequential offsets, ensuring they are read in the same order they were written.
+- Across Partitions: Kafka does not guarantee ordering because messages are distributed across multiple partitions for scalability and parallel processing. Each partition stores a subset of messages and maintains ordering.
 
 **[1 mark] What is the upper boundary when horizontally scaling Kafka consumers for a single topic?**
 
 **[1 mark] Does each `alarms` service process only one metrics type or many?**
 
+- Alarms in Apache Kafka are processed in consumers, not in the Kafka broker.
+- Alarm: System component that:
+  - monitors incoming data (e.g., metrics, logs, or events)
+  - (and) triggers alerts when predefined conditions are met.
+- Alarms Service (Consumer Application) is responsible for detecting issues and triggering alerts
+
 **[1 mark] Can two metrics of the same type end up in two different `alarms` services?**
 
----
+## No, since the metric type is used as the key, they will all end up in the same partition and thus consumed by the same alarm service
 
 ### [S5Q1] [8 marks] Answer the following questions about Kafka compacted topics and materialized views.
 
