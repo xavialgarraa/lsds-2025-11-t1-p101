@@ -111,6 +111,8 @@ Ordering is guaranteed within a partition but not across partitions.
 
 **[1 mark] What is the upper boundary when horizontally scaling Kafka consumers for a single topic?**
 
+The upper boundary for horizontally scaling Kafka consumers for a single topic is the number of partitions in that topic. A consumer group cannot have more active consumers than the number of partitions, as each partition can be assigned to only one consumer at a time.
+
 **[1 mark] Does each `alarms` service process only one metrics type or many?**
 
 - Alarms in Apache Kafka are processed in consumers, not in the Kafka broker.
@@ -121,7 +123,7 @@ Ordering is guaranteed within a partition but not across partitions.
 
 **[1 mark] Can two metrics of the same type end up in two different `alarms` services?**
 
-## No, since the metric type is used as the key, they will all end up in the same partition and thus consumed by the same alarm service
+No, since the metric type is used as the key, they will all end up in the same partition and thus consumed by the same alarm service
 
 ### [S5Q1] [8 marks] Answer the following questions about Kafka compacted topics and materialized views.
 
@@ -130,15 +132,36 @@ Ordering is guaranteed within a partition but not across partitions.
 
 **[1 mark] What is the difference between a standard topic and a compacted topic?**
 
+- A standard topic retains all messages for a configured period before they expire.
+- A compacted topic retains only the latest value for each unique key, discarding older versions of messages with the same key.
+
 **[1 mark] What is a materialized view? Why do we use compacted topics to create materialized views?**
+
+- A materialized view is a stored, continuously updated result of stream processing, allowing direct queries without reprocessing the entire stream.
+- Compacted topics are used because they remove outdated records, making it faster to construct and maintain the materialized view.
 
 **[1 mark] If multiple horizontally scaled consumers want to each construct a materialized view of the full topic, must they be in the same or different consumer groups?**
 
+- They must be in different consumer groups.
+- Consumers in the same group share partitions, meaning no single consumer would receive all messages required to construct the full materialized view.
+
 **[1 mark] If multiple horizontally scaled consumers want to each construct a materialized view of the full topic, what are the benefits of having more than 1 partition?**
 
-**[1 mark] What record represents a key deletion for a Materialzied View in a Kafka topic?**
+- **Increased throughput**: Enables parallel read and write operations.
+- **Fault tolerance and replication**: Ensures higher availability and durability.
+- **Faster recovery and rebalancing**: If a consumer crashes, a new instance can be started to process its assigned partitions.
+- **Load distribution for producers**: Producers can distribute messages more efficiently across multiple partitions.
+
+**[1 mark] What record represents a key deletion for a Materialized View in a Kafka topic?**
+
+- A record with the corresponding key and a `null` value represents a key deletion.
 
 **[3 mark] What is the benefit of a materialized view over an in-memory cache?**
+
+- **Self-updating**: Automatically updates when new values are added to the topic.
+- **Persistence**: Stored persistently, resistant to crashes and restarts.
+- **Consistency**: Can be rebuilt from Kafka topics if needed.
+- **Storage efficiency**: Uses log compaction to keep only the latest state per key, reducing storage requirements.
 
 ---
 
