@@ -3,9 +3,9 @@ from uuid import uuid4
 import json
 import uuid
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from confluent_kafka import Producer
+from fastapi import FastAPI, HTTPException, status
+from pydantic import BaseModel, ValidationError
+from confluent_kafka import Producer, KafkaException
 
 app = FastAPI()
 
@@ -20,10 +20,11 @@ def read_item(item_id: int, q: Union[str, None] = None):
     return {"item_id": item_id, "q": q}
 
 
-TOPIC = "metrics"
+# Configuración Kafka
+TOPIC = "rules"
 PRODUCER_CONFIG = {
-    "bootstrap.servers": "localhost:19092,localhost:29092,localhost:39092",
-    "client.id": f"metrics-producer-{uuid.uuid4()}",
+    "bootstrap.servers": "kafka-1:9092",
+    "client.id": f"kafka-quickstart-producer-{uuid.uuid4()}",
 }
 
 producer = Producer(PRODUCER_CONFIG)
@@ -36,29 +37,41 @@ class Rule(BaseModel):
 
 
 def delivery_report(err, msg):
-    if err is not None:
-        print(f"Message delivery failed: {err}")
+    if err:
+        print(f"Error en entrega Kafka: {err}")
     else:
-        print(f"Message delivered to {msg.topic()} [{msg.partition()}]")
+        print(f"Mensaje entregado a {msg.topic()} [Partición: {msg.partition()}]")
+
+
+rules_store = {}
 
 
 @app.post("/rules")
 def create_rule(rule: Rule):
-    try:
-        print(rule.dict())
-        rule_id = str(uuid.uuid4())
-        rule_dict = rule.dict()
-        rule_dict["id"] = rule_id
-        producer.produce(
-            "rules",
-            key=rule_id.encode("utf-8"),
-            value=json.dumps(rule_dict).encode("utf-8"),
-            callback=delivery_report,
+    rule_id = str(uuid.uuid4())
+    rule_data = rule.dict()
+    rule_data["id"] = rule_id
+
+    rules_store[rule_id] = rule_data
+
+    producer.produce(
+        TOPIC, key=rule_id, value=json.dumps(rule_data), callback=delivery_report
+    )
+
+    producer.flush()
+    return rule_data
+
+
+@app.delete("/rules")
+def delete_rule(rule_id: str):
+    if rule_id not in rules_store:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Regla no encontrada"
         )
-        producer.flush()
-        return rule_dict
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
+    del rules_store[rule_id]
 
-# information about the Discord webhook and the delete/post requests in /rules/README.md
+    producer.produce(TOPIC, key=rule_id, value=None, callback=delivery_report)
+
+    producer.flush()
+    return {"message": "Rule deleted"}

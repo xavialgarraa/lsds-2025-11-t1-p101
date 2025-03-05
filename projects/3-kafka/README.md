@@ -356,6 +356,8 @@ docker exec -it kafka-cluster-kafka-1-1 /bin/sh
 /bin/kafka-console-consumer --bootstrap-server kafka-1:9092 --topic rules --property print.key=true
 ```
 
+![](screenshots/L5Q0.png)
+
 ---
 
 ### [L5Q1] [20 marks] DELETE /rules/{id}

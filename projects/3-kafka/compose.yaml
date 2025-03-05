@@ -1,1 +1,14 @@
 name: lsds-kafka-lab
+services:
+  rules:
+    build: rules
+    ports:
+      - "5001:80"
+    networks:
+      - kafka-cluster_kafka-cluster-network
+    environment:
+      BROKER: kafka-1:9092
+
+networks:
+  kafka-cluster_kafka-cluster-network:
+    external: true
