@@ -376,6 +376,9 @@ docker exec -it kafka-cluster-kafka-1-1 /bin/sh
 /bin/kafka-console-consumer --bootstrap-server kafka-1:9092 --topic rules --property print.key=true
 ```
 
+![](screenshots/L5Q1.png)
+![](screenshots/L5Q2.png)
+
 ### [L5Q2] [5 marks] Dockerizing the rules service
 
 Add 1 instance of the `rules` service to the [compose.yaml](./compose.yaml) file.
@@ -405,7 +408,7 @@ docker exec -it lsds-kafka-lab-kafka-1-1 /bin/sh
 /bin/kafka-console-consumer --bootstrap-server kafka-1:9092 --topic rules --property print.key=true
 ```
 
----
+![](screenshots/L5Q2.png)
 
 ## Lab 6: Building the alarms service
 

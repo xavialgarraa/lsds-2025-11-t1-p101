@@ -66,7 +66,7 @@ def create_rule(rule: Rule):
 def delete_rule(rule_id: str):
     if rule_id not in rules_store:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Regla no encontrada"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Rule not found"
         )
 
     del rules_store[rule_id]
