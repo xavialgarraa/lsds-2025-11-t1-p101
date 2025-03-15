@@ -9,7 +9,7 @@ METRICS_TOPIC = "metrics"
 
 # Consumer configuration
 CONSUMER_CONFIG = {
-    "bootstrap.servers": "kafka-1:19092",
+    "bootstrap.servers": "kafka-1:9092",
     "group.id": f"rules-consumer-{uuid.uuid4()}",
     "auto.offset.reset": "earliest",
 }
