@@ -14,7 +14,7 @@ period_seconds = int(sys.argv[3])
 
 TOPIC = "metrics"
 PRODUCER_CONFIG = {
-    "bootstrap.servers": "localhost:19092,localhost:29092,localhost:39092",
+    "bootstrap.servers": "localhost:19092",
     "client.id": f"metrics-producer-{uuid.uuid4()}",
 }
 
