@@ -1,6 +1,23 @@
 from confluent_kafka import Consumer, KafkaException, KafkaError
 import json
 from threading import Thread
+import requests
+
+
+def send_discord_alert(rule_data, metric_value):
+    webhook_url = rule_data['discord_webhook_url']
+    message = {
+        "content": f"Alert: The metric `{rule_data['metric_name']}` triggered an alarm! The value `{metric_value}` exceeded the threshold `{rule_data['threshold']}`."
+    }
+
+    try:
+        response = requests.post(webhook_url, json=message)
+        if response.status_code == 204:
+            print(f"Alert sent to Discord: {message['content']}")
+        else:
+            print(f"Failed to send alert to Discord. Status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending alert to Discord: {e}")
 
 # Consumer configuration
 CONSUMER_CONFIG = {
