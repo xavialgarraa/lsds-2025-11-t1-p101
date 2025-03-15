@@ -130,6 +130,7 @@ def consume_metrics():
                         "metric_name": key,
                         "metric_value": value,
                         "rule_id": rule["id"],
+                        "threshold": rule["threshold"],
                         "discord_webhook_url": rule["discord_webhook_url"],
                     }
                     send_discord_alert(alert)
