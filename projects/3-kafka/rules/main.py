@@ -37,9 +37,9 @@ class Rule(BaseModel):
 
 def delivery_report(err, msg):
     if err:
-        print(f"Error en entrega Kafka: {err}")
+        print(f"Error in delivering Kafka: {err}")
     else:
-        print(f"Mensaje entregado a {msg.topic()} [Partición: {msg.partition()}]")
+        print(f"Message delivered to {msg.topic()} [Partition: {msg.partition()}]")
 
 
 rules_store = {}
