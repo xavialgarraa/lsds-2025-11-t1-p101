@@ -3,21 +3,9 @@ import json
 from threading import Thread
 import requests
 
-
-def send_discord_alert(rule_data, metric_value):
-    webhook_url = rule_data['discord_webhook_url']
-    message = {
-        "content": f"Alert: The metric `{rule_data['metric_name']}` triggered an alarm! The value `{metric_value}` exceeded the threshold `{rule_data['threshold']}`."
-    }
-
-    try:
-        response = requests.post(webhook_url, json=message)
-        if response.status_code == 204:
-            print(f"Alert sent to Discord: {message['content']}")
-        else:
-            print(f"Failed to send alert to Discord. Status code: {response.status_code}")
-    except requests.exceptions.RequestException as e:
-        print(f"Error sending alert to Discord: {e}")
+RULES_TOPIC = "rules"
+METRICS_TOPIC = "metrics"
+ALARMS_TOPIC = "alarms"
 
 # Consumer configuration
 CONSUMER_CONFIG = {
@@ -26,18 +14,11 @@ CONSUMER_CONFIG = {
     "auto.offset.reset": "earliest",
 }
 
-TOPIC = "rules"
-
-# Consumer creator
+# Consumer rules creation
 consumer = Consumer(CONSUMER_CONFIG)
+consumer.subscribe([RULES_TOPIC])
 
-# Topic subscription
-consumer.subscribe([TOPIC])
-
-# Materialized view
 rules_store = {}
-
-
 def consume_messages():
     try:
         while True:
@@ -49,14 +30,16 @@ def consume_messages():
                     continue
                 else:
                     raise KafkaException(msg.error())
-            # Process message
+            
             key = msg.key().decode("utf-8")
             value = msg.value()
+
             if value is not None:
-                rules_store[key] = json.loads(value)
+                rules_store[key] = json.loads(value.decode("utf-8"))
             else:
                 if key in rules_store:
-                    del rules_store[key]
+                    rules_store.pop(key)
+                    print(f"Rule {key} deleted")
             print(f"Updated rules_store: {rules_store}")
     except KeyboardInterrupt:
         pass
@@ -64,10 +47,64 @@ def consume_messages():
         consumer.close()
 
 
-if __name__ == "__main__":
-    thread = Thread(target=consume_messages, args=(10,))
-    thread.start()
-    thread.join()
-    print("thread finished...exiting")
+METRICS_CONFIG = {
+    "bootstrap.servers": "kafka-1:19092",
+    "group.id": "metrics-consumer-group",
+    "auto.offset.reset": "earliest",
+}
 
-# consumer_thread.join()
+# Consumer metrics creation
+metrics_consumer = Consumer(CONSUMER_CONFIG)
+metrics_consumer.subscribe([METRICS_TOPIC])
+
+
+import requests
+
+def send_discord_alert(rule_data):
+    webhook_url = rule_data['discord_webhook_url']
+
+    message = {
+        "content": f"**Alarm triggered for rule {rule_data['rule_id']}!**",
+        "embeds": [
+            {
+                "title": "Alarm Triggered",
+                "description": f"The metric **{rule_data['metric_name']}** exceeded the threshold!",
+                "color": 16711680, 
+                "fields": [
+                    {
+                        "name": "Rule ID",
+                        "value": rule_data['rule_id'],
+                        "inline": True
+                    },
+                    {
+                        "name": "Metric Name",
+                        "value": rule_data['metric_name'],
+                        "inline": True
+                    },
+                    {
+                        "name": "Metric Value",
+                        "value": str(rule_data['metric_value']),
+                        "inline": True
+                    },
+                    {
+                        "name": "Threshold",
+                        "value": str(rule_data['threshold']),
+                        "inline": True
+                    }
+                ]
+            }
+        ]
+    }
+
+    try:
+        response = requests.post(webhook_url, json=message)
+        if response.status_code == 204:
+            print(f"Alert sent to Discord: {message['content']}")
+        else:
+            print(f"Failed to send alert to Discord. Status code: {response.status_code}")
+    except requests.exceptions.RequestException as e:
+        print(f"Error sending alert to Discord: {e}")
+
+
+rules_thread = Thread(target=consume_messages, daemon=True)
+rules_thread.start()
