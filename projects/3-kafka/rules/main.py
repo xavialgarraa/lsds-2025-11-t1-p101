@@ -22,7 +22,7 @@ def read_item(item_id: int, q: Union[str, None] = None):
 # Configuración Kafka
 TOPIC = "rules"
 PRODUCER_CONFIG = {
-    "bootstrap.servers": "kafka-1:9092",
+    "bootstrap.servers": "kafka-1:9091",
     "client.id": f"kafka-quickstart-producer-{uuid.uuid4()}",
 }
 
