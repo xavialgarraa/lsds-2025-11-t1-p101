@@ -2,6 +2,7 @@ from confluent_kafka import Consumer, KafkaException, KafkaError
 import json
 from threading import Thread
 import requests
+import uuid
 
 RULES_TOPIC = "rules"
 METRICS_TOPIC = "metrics"
@@ -9,7 +10,7 @@ METRICS_TOPIC = "metrics"
 # Consumer configuration
 CONSUMER_CONFIG = {
     "bootstrap.servers": "kafka-1:19092",
-    "group.id": "rules-consumer-group",
+    "group.id": f"rules-consumer-{uuid.uuid4()}",
     "auto.offset.reset": "earliest",
 }
 
